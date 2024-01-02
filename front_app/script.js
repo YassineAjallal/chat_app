@@ -8,6 +8,7 @@ const errorDiv = document.getElementsByClassName("error")[0]
 const username = document.getElementById("username")
 const password = document.getElementById("password")
 const btns = document.getElementsByClassName("btns")[0]
+const main_section = document.getElementById('main-section')
 let viewName = "login"
 
 
@@ -17,6 +18,22 @@ validFieldElemnt.setAttribute('id', 'register-field')
 validFieldElemnt.innerHTML = `<label for="password">Password Confirmation</label>
                                 <input type="password" id="password_confirmation" name="password_confirmation" required>`
 
+const setHomeComponent = (username) => 
+{
+    btns.innerHTML = `
+                    <span>logged as ${username} </span>
+                    <button id="register-btn">Logout</button>
+                `
+    main_section.innerHTML = `<h1>This is You Home Page ${username}</h1>`
+}
+
+const setNabarStatus = () =>
+{
+    const login_id = Cookies.get('login_id')
+    const username = Cookies.get('username')
+    if ( login_id != undefined && username != undefined)
+        setHomeComponent(username)
+}
 
 const  switchView = () =>
 {
@@ -50,10 +67,12 @@ const sendRequest = () => {
         if (xhr.readyState == 4)
         {
             if (xhr.status == 200 || xhr.status == 201)
-                btns.innerHTML = `
-                    <span>logged as ${xhr.response.username} </span>
-                    <button id="register-btn">Logout</button>
-                `
+            {
+                let cookieInfo = {expires: 7, SameSite: 'Lax', path: '/'}
+                Cookies.set('login_id', xhr.response.token, cookieInfo)
+                Cookies.set('username', xhr.response.username, cookieInfo)
+                setHomeComponent(xhr.response.username)
+            }
             else
                 console.log(xhr.response)
                 // displayError(xhr.response.username[0])
@@ -72,6 +91,7 @@ const sendRequest = () => {
     xhr.send(JSON.stringify(data));
 }
 
+setNabarStatus()
 loginBtn.addEventListener("click", switchView);
 registerBtn.addEventListener('click', switchView)
 
@@ -82,8 +102,9 @@ formForm.addEventListener('submit', (e) => {
 })
 
 
-// work with sessionid
-// keep the user logged in in the browser
+
+// keep the user logged in in the browser ✅
+// change login page when user is logged in ✅
 // handle errors and others status code
-// change login page when user is logged in
+// impliment logout functionality
 // start impliment the chat logic 

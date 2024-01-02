@@ -33,6 +33,29 @@ body {
     transition: background-color 0.3s ease;
 }
 
+#logout-btn {
+    background-color: #dc3545;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+#logout-btn:hover {
+    background-color: #dc3546c3;
+}
+
+.username-span
+{
+    color: white;
+    text-decoration: underline;
+    margin: 0 10px;
+    cursor: pointer;
+}
+
 .login-btn:hover, .register-btn:hover {
     background-color: #27ae60;
 }
@@ -126,4 +149,46 @@ input {
     to {
         clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
     }
+}
+
+.home-section
+{
+    width: 100% !important;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 20px 0;
+}
+
+.channel-box {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 500px;
+    padding: 20px;
+    text-align: center;
+}
+
+.channel-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333333;
+    margin-bottom: 10px;
+}
+
+.channel-topic {
+    font-size: 16px;
+    color: #666666;
+    margin-bottom: 20px;
+}
+
+.join-button {
+    background-color: #3498db;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
 }

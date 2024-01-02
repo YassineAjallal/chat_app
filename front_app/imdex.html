@@ -10,15 +10,15 @@
     <div class="navbar">
         <a href="#" class="logo">Chati Dev</a>
         <div class="btns">
-            <button id="login-btn">Login</button>
-            <button id="register-btn">Register</button>
+            <button id="login-btn" onclick="switchView()">Login</button>
+            <button id="register-btn" onclick="switchView()">Register</button>
         </div>
     </div>
     <div class="error"></div>
     <div id="main-section">
         <div class="form-container" id="form-container">
             <h2 id="form-header">Login</h2>
-            <form class="form-form" method="post" id="form-form">
+            <form class="form-form" method="post" id="form-form" onsubmit="authenticateUser(event)">
               <div class="form-group">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" required>
@@ -29,7 +29,7 @@
               </div>
               <button type="submit" class="form-btn" id="form-submit">Login</button>
             </form>
-          </div>
+        </div>
     </div>
     <script src=" https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js "></script>
     <script src="script.js"></script>

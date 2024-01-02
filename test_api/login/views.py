@@ -38,3 +38,6 @@ class Users(viewsets.ModelViewSet):
     http_method_names = ["get"]
     serializer_class = UserSerializer
     queryset = User.objects.all()
+
+class HomeApiView():
+    pass

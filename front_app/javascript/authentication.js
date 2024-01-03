@@ -94,7 +94,6 @@ const authenticateUser = (e) => {
     xhr.responseType = "json"
     xhr.setRequestHeader("Content-type", "application/json")
     xhr.onreadystatechange = () => {
-        console.log(`status ---------> ${xhr.status}`)
         if (xhr.readyState == 4)
         {
             if (xhr.status == 200 || xhr.status == 201)
@@ -123,7 +122,6 @@ const authenticateUser = (e) => {
 }
 
 const logoutUser = () => {
-    console.log("hello")
     let xhr = new XMLHttpRequest()
     xhr.open('POST', 'http://localhost:8000/api/logout/')
     xhr.setRequestHeader('Authorization', 'Token ' + Cookies.get('login_id'))
@@ -142,6 +140,7 @@ const logoutUser = () => {
 }
 
 setNabarStatus()
+
 
 // keep the user logged in in the browser ✅
 // change login page when user is logged in ✅

@@ -140,8 +140,6 @@ const logoutUser = () => {
 }
 
 setNabarStatus()
-
-
 // keep the user logged in in the browser ✅
 // change login page when user is logged in ✅
 // handle errors and others status code

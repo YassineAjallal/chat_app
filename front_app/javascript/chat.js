@@ -1,15 +1,21 @@
 const chatSocket = new WebSocket('ws://localhost:8000/ws/chat/');
-const messageHistory = document.getElementById("message-history")
-const messageInput = document.getElementById("message-input")
+const messageHistory = document.getElementById("messageHolder")
+const messageInput = document.getElementById("messageInput")
 const send = document.getElementById("send")
 
 chatSocket.onmessage = function(e) {
-    console.log(e.data)
     const data = JSON.parse(e.data);
+    const messageRecieved = JSON.parse(data.message)
     const message = document.createElement('div')
-    message.innerHTML = data.message
-    message.setAttribute('class', 'other-user-message')
+    message.setAttribute('class', 'message')
+    message.innerHTML = `
+                        <div class="sender">${messageRecieved.username}</div>
+                        <div class="timestamp">2024-01-05 16:45</div>
+                        <div class="content">${messageRecieved.message}</div>
+                    `
     messageHistory.appendChild(message)
+    messageHistory.scrollTop = messageHistory.scrollHeight;
+
 };
 
 chatSocket.onclose = function(e) {
@@ -25,11 +31,14 @@ messageInput.onkeyup = function(e) {
 
 send.onclick = function(e) {
     const message = messageInput.value;
+    const username = Cookies.get('username')
     chatSocket.send(JSON.stringify({
-        'message': message
+        'message': message,
+        'username': username
     }));
     messageInput.value = '';
 };
+
 
 
 // onopen: when the WebSocket connection is established.

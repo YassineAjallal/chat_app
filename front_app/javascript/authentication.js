@@ -20,13 +20,22 @@ const setHomeComponent = (username) =>
                     <button id="logout-btn" onclick='logoutUser()'>Logout</button>
                 `
     main_section.classList.add('home-section')
-    main_section.innerHTML = `
-                        <div class="channel-box">
-                            <div class="channel-title">Awesome Channel</div>
-                            <div class="channel-topic">Discussing amazing topics</div>
-                            <button class="join-button">Join Channel</button>
-                        </div>
-    `
+    main_section.innerHTML = ''
+    fetch('http://127.0.0.1:8000/chat/rooms/')
+        .then(res => res.json())
+        .then(roomsData => {
+            for (let i = 0; i < roomsData.length; i++)
+            {
+                main_section.innerHTML += `
+                                    <div class="channel-box">
+                                        <div class="channel-title">${roomsData[i].name}</div>
+                                        <div class="channel-topic">${roomsData[i].topic}</div>
+                                        <button class="join-button" onclick="joinRoom('${roomsData[i].name}')">Join Channel</button>
+                                    </div>
+                `
+            }
+        })
+        .catch(err => console.log(err))
 }
 
 const setFormComponent = () =>
@@ -89,25 +98,6 @@ const displayError = (error) => {
 
 const authenticateUser = (e) => {
     e.preventDefault()
-    let xhr = new XMLHttpRequest()
-    xhr.open('POST', `http://localhost:8000/api/${viewName}/`)
-    xhr.responseType = "json"
-    xhr.setRequestHeader("Content-type", "application/json")
-    xhr.onreadystatechange = () => {
-        if (xhr.readyState == 4)
-        {
-            if (xhr.status == 200 || xhr.status == 201)
-            {
-                let cookieInfo = {expires: 7, SameSite: 'Lax', path: '/'}
-                Cookies.set('login_id', xhr.response.token, cookieInfo)
-                Cookies.set('username', xhr.response.username, cookieInfo)
-                setHomeComponent(xhr.response.username)
-            }
-            else
-                console.log(xhr.response)
-                // displayError(xhr.response.username[0])
-        }
-    }
     data = {
         "username":getElementId("username").value, 
         "password":getElementId("password").value
@@ -118,30 +108,97 @@ const authenticateUser = (e) => {
         if (password_conf.value !== data['password'])
             return displayError("passwords not identic")
     }
-    xhr.send(JSON.stringify(data));
+    fetch(`http://localhost:8000/api/${viewName}/`, {
+        method: "POST",
+        body : JSON.stringify(data),
+        responseType: "json",
+        headers: {
+            "Content-type": "application/json"
+        }
+    })
+    .then(res => {
+        if (res.status != 200 && res.status != 201)
+            throw new String("error")
+        return res.json()
+    })
+    .then(data => {
+        
+        let cookieInfo = {expires: 7, SameSite: 'Lax', path: '/'}
+        Cookies.set('login_id', data.token, cookieInfo)
+        Cookies.set('username', data.username, cookieInfo)
+        setHomeComponent(data.username)
+    })
+    .catch(err => displayError(err))
 }
 
 const logoutUser = () => {
-    let xhr = new XMLHttpRequest()
-    xhr.open('POST', 'http://localhost:8000/api/logout/')
-    xhr.setRequestHeader('Authorization', 'Token ' + Cookies.get('login_id'))
-    xhr.onreadystatechange = () => {
-        if (xhr.readyState == 4)
-        {
-            if (xhr.status == 202)
-            {
-                Cookies.remove('login_id')
-                Cookies.remove('username')
-                setFormComponent()
-            }
+    fetch('http://localhost:8000/api/logout/', {
+        method: "POST",
+        headers: {
+            "Authorization": 'Token ' + Cookies.get('login_id')
         }
+    })
+    .then(res => {
+        if (res.status != 202)
+            throw new String(res.body)
+        return res.json()
+    })
+    .then(data => {
+        Cookies.remove('login_id')
+        Cookies.remove('username')
+        setFormComponent()
+    })
+    .catch(err => displayError(err))
+}
+
+const renderChat = (data) =>
+{
+    const messageHolder = document.createElement('div')
+    messageHolder.setAttribute('class', 'message-holder')
+    messageHolder.setAttribute('id', 'messageHolder')
+    main_section.classList.add('chat-container')
+    main_section.innerHTML = ''
+    for (let i = 0; i < data.length; i++)
+    {
+        messageHolder.innerHTML += `
+            <div class="sender">${data[i].username}</div>
+            <div class="timestamp">2024-01-05 16:45</div>
+            <div class="content">${data[i].message}</div>
+        `
     }
-    xhr.send(null)
+    main_section.appendChild(messageHolder)
+    main_section.innerHTML += `
+                    <div class="input-container">
+                        <input type="text" id="messageInput" placeholder="Type a message...">
+                        <button id="send">Send</button>
+                    </div>
+    `
+    // document.styleSheets[0].href = "http://127.0.0.1:5500/css/chat.css";
+    document.styleSheets[0].href.replace('authentication', 'chat')
+    console.log(document.styleSheets[0])
+
+}
+
+function joinRoom(roomName)
+{
+    
+    console.log(roomName)
+    fetch(`http://127.0.0.1:8000/chat/rooms/${roomName}`)
+    .then(res => {
+        if (res.status != 200)
+            throw new String('error')
+        return res.json()
+    })
+    .then(data => renderChat(data))
+    .catch(err =>  console.log(err))
 }
 
 setNabarStatus()
 // keep the user logged in in the browser ✅
 // change login page when user is logged in ✅
-// handle errors and others status code
 // impliment logout functionality ✅
 // start impliment the chat logic ✅
+
+// handle errors and others status code
+// replace the css file
+// fix the login toggle button

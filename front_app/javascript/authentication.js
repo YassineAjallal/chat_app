@@ -2,6 +2,9 @@ const validFieldElemnt = document.createElement('div')
 const errorDiv = document.getElementsByClassName("error")[0]
 const btns = document.getElementsByClassName("btns")[0]
 const main_section = document.getElementById('main-section')
+
+
+let chatSocket
 let viewName = "login"
 
 validFieldElemnt.setAttribute('class', 'form-group')
@@ -40,7 +43,8 @@ const setHomeComponent = (username) =>
 
 const setFormComponent = () =>
 {
-    main_section.classList.remove('home-section')
+    // main_section.classList.remove('home-section')
+    main_section.classList.remove('chat-container')
     btns.innerHTML = `
                     <button id="login-btn" onclick="switchView()">Login</button>
                     <button id="register-btn" onclick="switchView()">Register</button>
@@ -161,28 +165,26 @@ const renderChat = (data) =>
     for (let i = 0; i < data.length; i++)
     {
         messageHolder.innerHTML += `
-            <div class="sender">${data[i].username}</div>
-            <div class="timestamp">2024-01-05 16:45</div>
-            <div class="content">${data[i].message}</div>
+            <div class="message ${data[i].username != Cookies.get('username') ? 'other' : ""}">
+                <div class="sender">${data[i].username}</div>
+                <div class="timestamp">${data[i].created}</div>
+                <div class="content">${data[i].message}</div>
+            </div>
         `
     }
     main_section.appendChild(messageHolder)
     main_section.innerHTML += `
                     <div class="input-container">
                         <input type="text" id="messageInput" placeholder="Type a message...">
-                        <button id="send">Send</button>
+                        <button id="send" onclick="sendMessage()">Send</button>
                     </div>
     `
-    // document.styleSheets[0].href = "http://127.0.0.1:5500/css/chat.css";
-    document.styleSheets[0].href.replace('authentication', 'chat')
-    console.log(document.styleSheets[0])
 
 }
 
-function joinRoom(roomName)
+const joinRoom = (roomName) =>
 {
     
-    console.log(roomName)
     fetch(`http://127.0.0.1:8000/chat/rooms/${roomName}`)
     .then(res => {
         if (res.status != 200)
@@ -191,6 +193,46 @@ function joinRoom(roomName)
     })
     .then(data => renderChat(data))
     .catch(err =>  console.log(err))
+    startChat(roomName)
+}
+
+const recieveMessage = (e) => {
+    const data = JSON.parse(e.data);
+    const messageRecieved = JSON.parse(data.message)
+    const message = document.createElement('div')
+    message.setAttribute('class', messageRecieved.username != Cookies.get('username') ? 'other' : "message")
+    // message_owner = messageRecieved.username != Cookies.get('username') ? 'other' : ""
+    // message.classList.add(message_owner)
+    message.innerHTML = `
+                        <div class="sender">${messageRecieved.username}</div>
+                        <div class="timestamp">${messageRecieved.created}</div>
+                        <div class="content">${messageRecieved.message}</div>
+                    `
+    document.getElementById("messageHolder").appendChild(message)
+    document.getElementById("messageHolder").scrollTop = document.getElementById("messageHolder").scrollHeight;
+}
+
+const closeSocket = (e) => {
+    console.log('Chat socket closed unexpectedly');
+}
+
+
+const  sendMessage = (e) => {
+    const message = document.getElementById("messageInput").value;
+    const username = Cookies.get('username')
+    chatSocket.send(JSON.stringify({
+        'message': message,
+        'username': username
+    }));
+    document.getElementById("messageInput").value = '';
+}
+
+
+const startChat = (roomName) =>
+{
+    chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${roomName}`)
+    chatSocket.onmessage = recieveMessage
+    chatSocket.onclose = closeSocket
 }
 
 setNabarStatus()
@@ -198,7 +240,26 @@ setNabarStatus()
 // change login page when user is logged in ✅
 // impliment logout functionality ✅
 // start impliment the chat logic ✅
+// replace the css file ✅
 
 // handle errors and others status code
-// replace the css file
 // fix the login toggle button
+
+
+
+
+
+
+
+/* --------- Doc ---------- */
+
+// onopen: when the WebSocket connection is established.
+// onmessage:  when a message is received from the server.
+// onclose:  when the WebSocket connection is closed.
+// onerror: when an error occurs.
+
+// send(data): Sends data to the server.
+// close([code[, reason]]): Closes the WebSocket connection.
+
+// readyState: Represents the current state of the WebSocket connection.
+// url: The URL that the WebSocket is connected to.

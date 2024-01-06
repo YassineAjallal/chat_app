@@ -23,5 +23,4 @@ class RoomInfoView(views.APIView):
     def get(self, request, name, format=None):
         room_message = MessageModel.objects.filter(room__name=name)
         message_serializer = MessageSerializer(room_message, many=True)
-        print(message_serializer.data)
         return Response(message_serializer.data)

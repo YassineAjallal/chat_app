@@ -155,13 +155,13 @@ const logoutUser = () => {
     .catch(err => displayError(err))
 }
 
-const renderChat = (data) =>
+const renderChat = (data, roomName) =>
 {
     const messageHolder = document.createElement('div')
     messageHolder.setAttribute('class', 'message-holder')
     messageHolder.setAttribute('id', 'messageHolder')
     main_section.classList.add('chat-container')
-    main_section.innerHTML = ''
+    main_section.innerHTML = `<h2 class="room_name">${roomName}</h2>`
     for (let i = 0; i < data.length; i++)
     {
         messageHolder.innerHTML += `
@@ -191,7 +191,7 @@ const joinRoom = (roomName) =>
             throw new String('error')
         return res.json()
     })
-    .then(data => renderChat(data))
+    .then(data => renderChat(data, roomName))
     .catch(err =>  console.log(err))
     startChat(roomName)
 }
